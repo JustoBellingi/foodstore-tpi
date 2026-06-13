@@ -1,23 +1,19 @@
 package com.tp8jpa.entities;
 
 import jakarta.persistence.*;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-public class Categoria {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Categoria extends Base {
 
     private String nombre;
 
     private String descripcion;
 
-    private boolean eliminado = false;
-
-    @OneToMany(mappedBy = "categoria")
-    private List<Producto> productos;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
+    private Set<Producto> productos = new HashSet<>();
 
     public Categoria() {
     }
@@ -28,10 +24,6 @@ public class Categoria {
     }
 
     // GETTERS Y SETTERS
-
-    public Long getId() {
-        return id;
-    }
 
     public String getNombre() {
         return nombre;
@@ -49,19 +41,15 @@ public class Categoria {
         this.descripcion = descripcion;
     }
 
-    public boolean isEliminado() {
-        return eliminado;
-    }
-
-    public void setEliminado(boolean eliminado) {
-        this.eliminado = eliminado;
-    }
-
-    public List<Producto> getProductos() {
+    public Set<Producto> getProductos() {
         return productos;
     }
 
-    public void setProductos(List<Producto> productos) {
+    public void setProductos(Set<Producto> productos) {
         this.productos = productos;
+    }
+
+    public void addProducto(Producto producto) {
+        this.productos.add(producto);
     }
 }
