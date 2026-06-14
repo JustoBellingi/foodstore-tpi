@@ -23,8 +23,6 @@ public class Categoria extends Base {
         this.descripcion = descripcion;
     }
 
-    // GETTERS Y SETTERS
-
     public String getNombre() {
         return nombre;
     }

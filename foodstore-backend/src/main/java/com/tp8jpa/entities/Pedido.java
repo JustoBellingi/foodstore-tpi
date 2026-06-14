@@ -1,41 +1,97 @@
 package com.tp8jpa.entities;
 
+import com.tp8jpa.entities.enums.Estado;
+import com.tp8jpa.entities.enums.FormaPago;
 import jakarta.persistence.*;
-import java.util.List;
+
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-public class Pedido {
+public class Pedido extends Base implements Calculable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private LocalDate fecha;
 
-    @ManyToOne
-    private Usuario usuario;
+    @Enumerated(EnumType.STRING)
+    private Estado estado;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
-    private List<DetallePedido> detalles;
+    private Double total;
+
+    @Enumerated(EnumType.STRING)
+    private FormaPago formaPago;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "pedido_id")
+    private Set<DetallePedido> detalles = new HashSet<>();
 
     public Pedido() {
     }
 
-    public Long getId() {
-        return id;
+    public Pedido(LocalDate fecha, Estado estado, FormaPago formaPago) {
+        this.fecha = fecha;
+        this.estado = estado;
+        this.formaPago = formaPago;
+        this.total = 0.0;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    @Override
+    public void calcularTotal() {
+        total = 0.0;
+
+        for (DetallePedido detalle : detalles) {
+            total += detalle.getSubtotal();
+        }
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void addDetallePedido(int cantidad, Producto producto) {
+
+        Double subtotal = producto.getPrecio() * cantidad;
+
+        DetallePedido detalle = new DetallePedido(
+                cantidad,
+                subtotal,
+                producto
+        );
+
+        detalles.add(detalle);
+
+        calcularTotal();
     }
 
-    public List<DetallePedido> getDetalles() {
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
+    }
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
+    public Double getTotal() {
+        return total;
+    }
+
+    public FormaPago getFormaPago() {
+        return formaPago;
+    }
+
+    public void setFormaPago(FormaPago formaPago) {
+        this.formaPago = formaPago;
+    }
+
+    public Set<DetallePedido> getDetalles() {
         return detalles;
     }
 
-    public void setDetalles(List<DetallePedido> detalles) {
+    public void setDetalles(Set<DetallePedido> detalles) {
         this.detalles = detalles;
     }
 }

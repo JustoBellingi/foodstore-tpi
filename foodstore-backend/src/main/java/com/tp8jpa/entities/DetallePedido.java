@@ -3,31 +3,23 @@ package com.tp8jpa.entities;
 import jakarta.persistence.*;
 
 @Entity
-public class DetallePedido {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class DetallePedido extends Base {
 
     private int cantidad;
 
-    @ManyToOne
-    private Pedido pedido;
+    private Double subtotal;
 
     @ManyToOne
+    @JoinColumn(name = "producto_id")
     private Producto producto;
 
     public DetallePedido() {
     }
 
-    public DetallePedido(int cantidad, Pedido pedido, Producto producto) {
+    public DetallePedido(int cantidad, Double subtotal, Producto producto) {
         this.cantidad = cantidad;
-        this.pedido = pedido;
+        this.subtotal = subtotal;
         this.producto = producto;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public int getCantidad() {
@@ -38,12 +30,12 @@ public class DetallePedido {
         this.cantidad = cantidad;
     }
 
-    public Pedido getPedido() {
-        return pedido;
+    public Double getSubtotal() {
+        return subtotal;
     }
 
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
+    public void setSubtotal(Double subtotal) {
+        this.subtotal = subtotal;
     }
 
     public Producto getProducto() {
@@ -53,8 +45,5 @@ public class DetallePedido {
     public void setProducto(Producto producto) {
         this.producto = producto;
     }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }
+

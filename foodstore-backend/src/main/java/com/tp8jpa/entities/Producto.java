@@ -1,41 +1,34 @@
 package com.tp8jpa.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 
 @Entity
-public class Producto {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Producto extends Base {
 
     private String nombre;
 
-    private double precio;
+    private Double precio;
 
     private String descripcion;
 
     private int stock;
 
-    private boolean eliminado = false;
+    private String imagen;
 
-    @ManyToOne
-    private Categoria categoria;
+    private Boolean disponible;
 
     public Producto() {
     }
 
-    public Producto(String nombre, double precio, String descripcion, int stock) {
+    public Producto(String nombre, Double precio, String descripcion,
+                    int stock, String imagen, Boolean disponible) {
+
         this.nombre = nombre;
         this.precio = precio;
         this.descripcion = descripcion;
         this.stock = stock;
-    }
-
-    // GETTERS Y SETTERS
-
-    public Long getId() {
-        return id;
+        this.imagen = imagen;
+        this.disponible = disponible;
     }
 
     public String getNombre() {
@@ -46,11 +39,11 @@ public class Producto {
         this.nombre = nombre;
     }
 
-    public double getPrecio() {
+    public Double getPrecio() {
         return precio;
     }
 
-    public void setPrecio(double precio) {
+    public void setPrecio(Double precio) {
         this.precio = precio;
     }
 
@@ -70,19 +63,19 @@ public class Producto {
         this.stock = stock;
     }
 
-    public boolean isEliminado() {
-        return eliminado;
+    public String getImagen() {
+        return imagen;
     }
 
-    public void setEliminado(boolean eliminado) {
-        this.eliminado = eliminado;
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 
-    public Categoria getCategoria() {
-        return categoria;
+    public Boolean getDisponible() {
+        return disponible;
     }
 
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
+    public void setDisponible(Boolean disponible) {
+        this.disponible = disponible;
     }
 }
