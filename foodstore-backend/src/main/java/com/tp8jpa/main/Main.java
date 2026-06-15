@@ -2,8 +2,11 @@ package com.tp8jpa.main;
 
 import com.tp8jpa.entities.Categoria;
 import com.tp8jpa.entities.Producto;
+import com.tp8jpa.entities.Usuario;
+import com.tp8jpa.entities.enums.Rol;
 import com.tp8jpa.repository.CategoriaRepository;
 import com.tp8jpa.repository.ProductoRepository;
+import com.tp8jpa.repository.UsuarioRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,16 +21,19 @@ public class Main {
 
     private static final ProductoRepository productoRepository =
             new ProductoRepository();
+    
+    private static final UsuarioRepository usuarioRepository =
+        new UsuarioRepository();
 
     public static void main(String[] args) {
 
         int opcion;
 
         do {
-            System.out.println("\n===== MENU PRINCIPAL =====");
             System.out.println("1 - ABM Categorias");
             System.out.println("2 - ABM Productos");
-            System.out.println("3 - Reportes");
+            System.out.println("3 - ABM Usuarios");
+            System.out.println("4 - Reportes");
             System.out.println("0 - Salir");
 
             System.out.print("Opcion: ");
@@ -37,7 +43,8 @@ public class Main {
             switch (opcion) {
                 case 1 -> menuCategorias();
                 case 2 -> menuProductos();
-                case 3 -> menuReportes();
+                case 3 -> menuUsuarios();
+                case 4 -> menuReportes();
                 case 0 -> System.out.println("Programa finalizado.");
                 default -> System.out.println("Opcion invalida.");
             }
@@ -321,6 +328,146 @@ public class Main {
         }
     }
 
+    // =========================
+    // USUARIOS
+    // =========================
+
+   private static void menuUsuarios() {
+
+    int opcion;
+
+    do {
+
+        System.out.println("\n===== ABM USUARIOS =====");
+        System.out.println("1 - Crear");
+        System.out.println("2 - Modificar");
+        System.out.println("3 - Eliminar");
+        System.out.println("4 - Listar");
+        System.out.println("0 - Volver");
+
+        System.out.print("Opcion: ");
+        opcion = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (opcion) {
+            case 1 -> altaUsuario();
+            case 2 -> modificarUsuario();
+            case 3 -> bajaUsuario();
+            case 4 -> listarUsuarios();
+        }
+
+    } while (opcion != 0);
+}
+        private static void altaUsuario() {
+
+            System.out.print("Nombre: ");
+            String nombre = scanner.nextLine();
+
+            System.out.print("Apellido: ");
+            String apellido = scanner.nextLine();
+
+            System.out.print("Mail: ");
+            String mail = scanner.nextLine();
+
+            System.out.print("Celular: ");
+            String celular = scanner.nextLine();
+
+            System.out.print("Contraseña: ");
+            String contrasena = scanner.nextLine();
+
+            System.out.println("Rol:");
+            System.out.println("1 - ADMIN");
+            System.out.println("2 - USUARIO");
+
+            int opcionRol = scanner.nextInt();
+            scanner.nextLine();
+
+            Rol rol = (opcionRol == 1) ? Rol.ADMIN : Rol.USUARIO;
+
+            Usuario usuario = new Usuario(
+                    nombre,
+                    apellido,
+                    mail,
+                    celular,
+                    contrasena,
+                    rol
+            );
+
+            usuario = usuarioRepository.guardar(usuario);
+
+            System.out.println("Usuario creado ID: " + usuario.getId());
+        }
+        private static void modificarUsuario() {
+
+            listarUsuarios();
+
+            System.out.print("ID usuario: ");
+            Long id = scanner.nextLong();
+            scanner.nextLine();
+
+            Optional<Usuario> opt = usuarioRepository.buscarPorId(id);
+
+            if (opt.isEmpty()) {
+                System.out.println("Usuario no encontrado.");
+                return;
+            }
+
+            Usuario u = opt.get();
+
+            System.out.print("Nuevo nombre: ");
+            String nombre = scanner.nextLine();
+            if (!nombre.isBlank()) u.setNombre(nombre);
+
+            System.out.print("Nuevo apellido: ");
+            String apellido = scanner.nextLine();
+            if (!apellido.isBlank()) u.setApellido(apellido);
+
+            System.out.print("Nuevo mail: ");
+            String mail = scanner.nextLine();
+            if (!mail.isBlank()) u.setMail(mail);
+
+            System.out.print("Nuevo celular: ");
+            String celular = scanner.nextLine();
+            if (!celular.isBlank()) u.setCelular(celular);
+
+            usuarioRepository.guardar(u);
+
+            System.out.println("Usuario modificado.");
+        }
+        private static void bajaUsuario() {
+
+            listarUsuarios();
+
+            System.out.print("ID usuario: ");
+            Long id = scanner.nextLong();
+            scanner.nextLine();
+
+            boolean ok = usuarioRepository.eliminarLogico(id);
+
+            System.out.println(ok ? "Usuario eliminado." : "Usuario no encontrado.");
+        }
+        private static void listarUsuarios() {
+
+            List<Usuario> lista = usuarioRepository.listarActivos();
+
+            if (lista.isEmpty()) {
+                System.out.println("Sin usuarios.");
+                return;
+            }
+
+            System.out.println("\n===== USUARIOS =====");
+
+            for (Usuario u : lista) {
+
+                System.out.println(
+                        "ID: " + u.getId() +
+                        " | Nombre: " + u.getNombre() +
+                        " " + u.getApellido() +
+                        " | Mail: " + u.getMail() +
+                        " | Rol: " + u.getRol()
+                );
+            }
+        }
     // =========================
     // REPORTES
     // =========================
