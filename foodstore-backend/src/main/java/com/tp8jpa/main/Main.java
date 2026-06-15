@@ -1,12 +1,17 @@
 package com.tp8jpa.main;
 
 import com.tp8jpa.entities.Categoria;
+import com.tp8jpa.entities.DetallePedido;
+import com.tp8jpa.entities.Pedido;
 import com.tp8jpa.entities.Producto;
 import com.tp8jpa.entities.Usuario;
+import com.tp8jpa.entities.enums.Estado;
+import com.tp8jpa.entities.enums.FormaPago;
 import com.tp8jpa.entities.enums.Rol;
 import com.tp8jpa.repository.CategoriaRepository;
 import com.tp8jpa.repository.ProductoRepository;
 import com.tp8jpa.repository.UsuarioRepository;
+import com.tp8jpa.repository.PedidoRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +30,9 @@ public class Main {
     private static final UsuarioRepository usuarioRepository =
         new UsuarioRepository();
 
+    private static final PedidoRepository pedidoRepository =
+            new PedidoRepository();
+
     public static void main(String[] args) {
 
         int opcion;
@@ -33,7 +41,8 @@ public class Main {
             System.out.println("1 - ABM Categorias");
             System.out.println("2 - ABM Productos");
             System.out.println("3 - ABM Usuarios");
-            System.out.println("4 - Reportes");
+            System.out.println("4 - ABM Pedidos");
+            System.out.println("5 - Reportes");
             System.out.println("0 - Salir");
 
             System.out.print("Opcion: ");
@@ -44,7 +53,8 @@ public class Main {
                 case 1 -> menuCategorias();
                 case 2 -> menuProductos();
                 case 3 -> menuUsuarios();
-                case 4 -> menuReportes();
+                case 4 -> menuPedidos();
+                case 5 -> menuReportes();
                 case 0 -> System.out.println("Programa finalizado.");
                 default -> System.out.println("Opcion invalida.");
             }
@@ -249,9 +259,7 @@ public class Main {
             true
         );
 
-        categoria.addProducto(producto);
-
-        categoria = categoriaRepository.guardar(categoria);
+        categoriaRepository.agregarProducto(catId, producto);
 
         System.out.println("Producto creado correctamente.");
     }
@@ -468,35 +476,166 @@ public class Main {
                 );
             }
         }
+
     // =========================
-    // REPORTES
-    // =========================
+// PEDIDOS
+// =========================
+        private static void menuPedidos() {
 
-    private static void menuReportes() {
+            int opcion;
 
-        listarCategorias();
+            do {
 
-        System.out.print("ID categoria: ");
-        Long id = scanner.nextLong();
-        scanner.nextLine();
+                System.out.println("\n===== ABM PEDIDOS =====");
+                System.out.println("1 - Crear");
+                System.out.println("2 - Eliminar");
+                System.out.println("3 - Listar");
+                System.out.println("0 - Volver");
 
-        List<Producto> productos =
-                productoRepository.buscarPorCategoria(id);
+                System.out.print("Opcion: ");
+                opcion = scanner.nextInt();
+                scanner.nextLine();
 
-        if (productos.isEmpty()) {
-            System.out.println("Sin productos.");
-            return;
+                switch (opcion) {
+                    case 1 -> altaPedido();
+                    case 2 -> bajaPedido();
+                    case 3 -> listarPedidos();
+                }
+
+            } while (opcion != 0);
         }
 
-        System.out.println("\n===== REPORTE =====");
+        private static void altaPedido() {
 
-        for (Producto p : productos) {
+            Pedido pedido = new Pedido();
+
+            pedido.setFecha(java.time.LocalDate.now());
+            pedido.setEstado(Estado.PENDIENTE);
+            pedido.setFormaPago(FormaPago.EFECTIVO);
+
+            listarProductos();
+
+            System.out.print("ID producto: ");
+            Long idProducto = scanner.nextLong();
+            scanner.nextLine();
+
+            Optional<Producto> optProducto =
+                    productoRepository.buscarPorId(idProducto);
+
+            if (optProducto.isEmpty()) {
+                System.out.println("Producto no encontrado.");
+                return;
+            }
+
+            Producto producto = optProducto.get();
+
+            System.out.print("Cantidad: ");
+            int cantidad = scanner.nextInt();
+            scanner.nextLine();
+
+            if (cantidad <= 0) {
+                System.out.println("Cantidad invalida.");
+                return;
+            }
+
+            pedido.addDetalle(cantidad, producto);
+
+            pedidoRepository.guardar(pedido);
+
+            System.out.println("Pedido creado correctamente.");
+            System.out.println("Total: $" + pedido.getTotal());
+        }
+
+        private static void bajaPedido() {
+
+            listarPedidos();
+
+            System.out.print("ID pedido: ");
+            Long id = scanner.nextLong();
+            scanner.nextLine();
+
+            boolean ok = pedidoRepository.eliminarLogico(id);
+
             System.out.println(
-                    "ID: " + p.getId() +
-                    " | Nombre: " + p.getNombre() +
-                    " | Precio: " + p.getPrecio() +
-                    " | Stock: " + p.getStock()
+                    ok ? "Pedido eliminado." : "Pedido no encontrado."
             );
         }
+
+        private static void listarPedidos() {
+
+            List<Pedido> lista = pedidoRepository.listarActivos();
+
+            if (lista.isEmpty()) {
+                System.out.println("Sin pedidos.");
+                return;
+            }
+
+            System.out.println("\n===== PEDIDOS =====");
+
+            for (Pedido p : lista) {
+
+                System.out.println(
+                        "ID: " + p.getId() +
+                        " | Fecha: " + p.getFecha() +
+                        " | Estado: " + p.getEstado() +
+                        " | Forma Pago: " + p.getFormaPago() +
+                        " | Total: $" + p.getTotal()
+                );
+            }
+        }   
+// =========================
+// REPORTES
+// =========================
+
+private static void menuReportes() {
+
+    int opcion;
+
+    do {
+
+        System.out.println("\n===== REPORTES =====");
+        System.out.println("1 - Productos por categoria");
+        System.out.println("2 - Volver");
+
+        System.out.print("Opcion: ");
+        opcion = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (opcion) {
+            case 1 -> reporteProductosPorCategoria();
+            case 2 -> {
+            }
+        }
+
+    } while (opcion != 2);
+}
+
+private static void reporteProductosPorCategoria() {
+
+    listarCategorias();
+
+    System.out.print("ID categoria: ");
+    Long id = scanner.nextLong();
+    scanner.nextLine();
+
+    List<Producto> productos =
+            productoRepository.buscarPorCategoria(id);
+
+    if (productos.isEmpty()) {
+        System.out.println("No hay productos para esa categoria.");
+        return;
     }
+
+    System.out.println("\n===== REPORTE =====");
+
+    for (Producto p : productos) {
+
+        System.out.println(
+                "ID: " + p.getId() +
+                " | Nombre: " + p.getNombre() +
+                " | Precio: $" + p.getPrecio() +
+                " | Stock: " + p.getStock()
+        );
+    }
+}
 }
