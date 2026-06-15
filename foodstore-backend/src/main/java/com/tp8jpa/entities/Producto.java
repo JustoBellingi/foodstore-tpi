@@ -78,11 +78,4 @@ public class Producto extends Base {
     public void setDisponible(Boolean disponible) {
         this.disponible = disponible;
     }
-    public Categoria getCategoria() {
-    return categoria;
-}
-
-public void setCategoria(Categoria categoria) {
-    this.categoria = categoria;
-}
 }
