@@ -1,16 +1,23 @@
+# Gradle
+.gradle/
+build/
+
 # Maven
 target/
 
 # VS Code
 .vscode/
 
-# IntelliJ
+# IntelliJ IDEA
 .idea/
 *.iml
+
+# Java
+*.class
 
 # Logs
 *.log
 
-# OS
+# Sistema Operativo
 .DS_Store
 Thumbs.db
