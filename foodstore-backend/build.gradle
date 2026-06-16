@@ -28,3 +28,7 @@ java {
 application {
     mainClass = 'com.tp8jpa.main.Main'
 }
+
+run {
+    standardInput = System.in
+}
