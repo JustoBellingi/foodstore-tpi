@@ -1,0 +1,95 @@
+
+
+[
+    
+  {
+    "id": 1,
+    "nombre": "Arandanos",
+    "descripcion": "Arándanos frescos y dulces",
+    "precio": 1200,
+    "categoria": "frutas",
+    "stock": 20,
+    "imagen": "Arandanos.jpg"
+  },
+  {
+    "id": 2,
+    "nombre": "Banana",
+    "descripcion": "Bananas maduras listas para consumir",
+    "precio": 500,
+    "categoria": "frutas",
+    "stock": 30,
+    "imagen": "Banana.jpg"
+  },
+  {
+    "id": 3,
+    "nombre": "Frutilla",
+    "descripcion": "Frutillas frescas de estación",
+    "precio": 1500,
+    "categoria": "frutas",
+    "stock": 18,
+    "imagen": "Frutilla.jpg"
+  },
+  {
+    "id": 4,
+    "nombre": "Mandarina",
+    "descripcion": "Mandarinas jugosas y dulces",
+    "precio": 800,
+    "categoria": "frutas",
+    "stock": 25,
+    "imagen": "Mandarina.jpg"
+  },
+  {
+    "id": 5,
+    "nombre": "ManzanaV",
+    "descripcion": "Manzanas verdes crocantes",
+    "precio": 900,
+    "categoria": "frutas",
+    "stock": 22,
+    "imagen": "ManzanaV.jpg"
+  },
+  {
+    "id": 6,
+    "nombre": "Melon",
+    "descripcion": "Melón dulce y refrescante",
+    "precio": 2000,
+    "categoria": "frutas",
+    "stock": 10,
+    "imagen": "Melon.jpg"
+  },
+  {
+    "id": 7,
+    "nombre": "Morron",
+    "descripcion": "Morrones frescos para cocinar",
+    "precio": 700,
+    "categoria": "verduras",
+    "stock": 15,
+    "imagen": "Morron.jpg"
+  },
+  {
+    "id": 8,
+    "nombre": "Palta",
+    "descripcion": "Paltas cremosas y maduras",
+    "precio": 1800,
+    "categoria": "frutas",
+    "stock": 12,
+    "imagen": "Palta.jpg"
+  },
+  {
+    "id": 9,
+    "nombre": "Zapallo",
+    "descripcion": "Zapallo ideal para sopas y purés",
+    "precio": 600,
+    "categoria": "verduras",
+    "stock": 14,
+    "imagen": "Zapallo.jpg"
+  },
+  {
+    "id": 10,
+    "nombre": "Zanahoria",
+    "descripcion": "Zanahorias frescas y crocantes",
+    "precio": 400,
+    "categoria": "verduras",
+    "stock": 40,
+    "imagen": "Zanahoria.jpg"
+  }
+]
