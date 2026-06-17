@@ -1,33 +1,54 @@
+import "./login.css";
 import { navigate } from "../../../utils/router";
 
 export function loadLogin() {
-  document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-    <div style="max-width:300px;margin:auto">
-      <h2>Login</h2>
+  document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
+    <div class="login-container">
 
-      <input id="email" placeholder="Email" />
-      <br/><br/>
+      <div class="login-card">
 
-      <input id="password" type="password" placeholder="Password" />
-      <br/><br/>
+        <h1>🥬 FoodStore</h1>
+        <p>Frutas y verduras frescas al mejor precio</p>
 
-      <button id="loginBtn">Ingresar</button>
+        <label for="email">Correo electrónico</label>
+        <input
+          id="email"
+          type="email"
+          placeholder="Ingresá tu correo"
+        >
 
-      <p id="error" style="color:red"></p>
+        <label for="password">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          placeholder="Ingresá tu contraseña"
+        >
+
+        <button id="loginBtn">
+          Ingresar
+        </button>
+
+        <p id="error"></p>
+
+      </div>
+
     </div>
   `;
 
-  document.getElementById('loginBtn')!.addEventListener('click', async () => {
-    const res = await fetch('/src/data/usuarios.json');
+  document.getElementById("loginBtn")!.addEventListener("click", async () => {
+
+    const res = await fetch("/src/data/usuarios.json");
     const users = await res.json();
 
-    const email = (document.getElementById('email') as HTMLInputElement).value;
-    const password = (document.getElementById('password') as HTMLInputElement).value;
+    const email = (document.getElementById("email") as HTMLInputElement).value;
+    const password = (document.getElementById("password") as HTMLInputElement).value;
 
-    const user = users.find((u: any) => u.email === email && u.password === password);
+    const user = users.find(
+      (u: any) => u.email === email && u.password === password
+    );
 
     if (!user) {
-      document.getElementById('error')!.innerText = "Credenciales inválidas";
+      document.getElementById("error")!.textContent = "Credenciales inválidas";
       return;
     }
 

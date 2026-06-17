@@ -1,48 +1,94 @@
-import Arandanos from '../../../assets/productos/Arandanos.jpg';
-import Banana from '../../../assets/productos/Banana.jpg';
-import Frutilla from '../../../assets/productos/Frutilla.jpg';
-import Mandarina from '../../../assets/productos/Mandarina.jpg';
-import ManzanaV from '../../../assets/productos/ManzanaV.jpg';
-import Melon from '../../../assets/productos/Melon.jpg';
-import Morron from '../../../assets/productos/Morron.jpg';
-import Palta from '../../../assets/productos/Palta.jpg';
-import Zapallo from '../../../assets/productos/Zapallo.jpg';
-import Zanahoria from '../../../assets/productos/Zanahoria.jpg';
+import { navigate } from "../../../utils/router";
 
 const imagenes: Record<string, string> = {
-  Arandanos,
-  Banana,
-  Frutilla,
-  Mandarina,
-  ManzanaV,
-  Melon,
-  Morron,
-  Palta,
-  Zapallo,
-  Zanahoria
+  "Arandanos.jpg": new URL("../../../assets/productos/Arandanos.jpg", import.meta.url).href,
+  "Banana.jpg": new URL("../../../assets/productos/Banana.jpg", import.meta.url).href,
+  "Frutilla.jpg": new URL("../../../assets/productos/Frutilla.jpg", import.meta.url).href,
+  "Mandarina.jpg": new URL("../../../assets/productos/Mandarina.jpg", import.meta.url).href,
+  "ManzanaV.jpg": new URL("../../../assets/productos/ManzanaV.jpg", import.meta.url).href,
+  "Melon.jpg": new URL("../../../assets/productos/Melon.jpg", import.meta.url).href,
+  "Morron.jpg": new URL("../../../assets/productos/Morron.jpg", import.meta.url).href,
+  "Palta.jpg": new URL("../../../assets/productos/Palta.jpg", import.meta.url).href,
+  "Zapallo.jpg": new URL("../../../assets/productos/Zapallo.jpg", import.meta.url).href,
+  "Zanahoria.jpg": new URL("../../../assets/productos/Zanahoria.jpg", import.meta.url).href
 };
 
 export async function loadStore() {
-  const res = await fetch('/src/data/productos.json');
-  const productos = await res.json();
+  const respuesta = await fetch("/src/data/productos.json");
+  const productos = await respuesta.json();
 
-  document.querySelector('#app')!.innerHTML = `
-    <h1>🍎 Frutas y Verduras</h1>
-    <div id="productos"></div>
-  `;
+  document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 
-  const container = document.getElementById('productos')!;
+<header class="navbar">
 
-  container.innerHTML = productos.map((p: any) => card(p)).join('');
-}
-
-function card(p: any) {
-  return `
-    <div class="card">
-      <img src="${imagenes[p.nombre]}" width="120" />
-      <h3>${p.nombre}</h3>
-      <p>${p.descripcion}</p>
-      <b>$${p.precio}</b>
+    <div class="logo">
+        🥬 FoodStore
     </div>
-  `;
+
+    <nav>
+
+        <a href="#">🏠 Inicio</a>
+
+        <a href="#">🍎 Productos</a>
+
+        <a href="#">📦 Pedidos</a>
+
+        <a href="#">🛒 Carrito</a>
+
+        <button id="logoutBtn">
+            Cerrar sesión
+        </button>
+
+    </nav>
+
+</header>
+
+<main>
+
+    <h1>Frutas y Verduras</h1>
+
+    <div class="grid" id="productos"></div>
+
+</main>
+
+`;
+document.getElementById("inicio")?.addEventListener("click", () => {
+    navigate("store");
+});
+
+document.getElementById("productos")?.addEventListener("click", () => {
+    navigate("store");
+});
+
+document.getElementById("pedidos")?.addEventListener("click", () => {
+    navigate("orders");
+});
+
+document.getElementById("carrito")?.addEventListener("click", () => {
+    navigate("cart");
+});
+
+document.getElementById("logout")?.addEventListener("click", () => {
+    localStorage.removeItem("user");
+    navigate("login");
+});
+  const contenedor = document.getElementById("productos")!;
+
+  productos.forEach((producto: any) => {
+    contenedor.innerHTML += `
+      <div class="card">
+        <img src="${imagenes[producto.imagen]}" alt="${producto.nombre}" />
+
+        <h3>${producto.nombre}</h3>
+
+        <p>${producto.descripcion}</p>
+
+        <h4>$${producto.precio}</h4>
+
+        <p>Stock: ${producto.stock}</p>
+
+        <button>Agregar al carrito</button>
+      </div>
+    `;
+  });
 }
