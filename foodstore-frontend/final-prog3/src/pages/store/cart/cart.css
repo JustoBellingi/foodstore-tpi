@@ -1,0 +1,53 @@
+#app h1 {
+  margin-bottom: 10px;
+}
+
+/* contenedor de productos */
+.cart-item {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* botones del carrito */
+.cart-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* botones especiales */
+.cart-btn.danger {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+}
+
+/* contenedor de acciones (+ - eliminar) */
+.cart-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* total */
+.cart-total {
+  margin-top: 15px;
+  font-size: 18px;
+  font-weight: bold;
+}
+.cart-btn-delete {
+  width: auto;
+  min-width: 90px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+
