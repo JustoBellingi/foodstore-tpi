@@ -42,18 +42,26 @@ import {
 
     try {
 
-        // await fetch("http://localhost:8080/pedidos", { ... })
+        const pedidos =
+            JSON.parse(localStorage.getItem("orders") || "[]");
+
+        pedidos.push(pedido);
+
+        localStorage.setItem(
+            "orders",
+            JSON.stringify(pedidos)
+        );
 
         alert("Pedido realizado con éxito 🎉");
 
         clearCart();
 
-        loadCart(); // 🔥 importante refrescar UI
-
         location.hash = "orders";
 
     } catch (error) {
+
         console.error(error);
+
         alert("Error al crear el pedido");
     }
 };

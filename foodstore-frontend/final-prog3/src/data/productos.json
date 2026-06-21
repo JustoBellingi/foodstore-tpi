@@ -1,7 +1,4 @@
-
-
 [
-    
   {
     "id": 1,
     "nombre": "Arandanos",
@@ -91,5 +88,68 @@
     "categoria": "verduras",
     "stock": 40,
     "imagen": "Zanahoria.jpg"
-  }
+  },
+{
+  "id": 11,
+  "nombre": "Garbanzos",
+  "descripcion": "Legumbre rica en proteínas",
+  "precio": 700,
+  "categoria": "legumbres",
+  "stock": 40,
+  "imagen": "Garbanzos.jpg"
+},
+{
+  "id": 12,
+  "nombre": "Lentejas",
+  "descripcion": "Lentejas secas nutritivas",
+  "precio": 650,
+  "categoria": "legumbres",
+  "stock": 35,
+  "imagen": "Lentejas.jpg"
+},
+{
+  "id": 13,
+  "nombre": "Poroto",
+  "descripcion": "Porotos para guisos",
+  "precio": 750,
+  "categoria": "legumbres",
+  "stock": 28,
+  "imagen": "Poroto.jpg"
+},
+{
+  "id": 14,
+  "nombre": "Curry",
+  "descripcion": "Mezcla de especias curry",
+  "precio": 900,
+  "categoria": "condimentos",
+  "stock": 20,
+  "imagen": "Curry.jpg"
+},
+{
+  "id": 15,
+  "nombre": "Orégano",
+  "descripcion": "Condimento seco aromático",
+  "precio": 400,
+  "categoria": "condimentos",
+  "stock": 50,
+  "imagen": "Oregano.jpg"
+},
+{
+  "id": 16,
+  "nombre": "Pimienta Negra",
+  "descripcion": "Pimienta molida premium",
+  "precio": 850,
+  "categoria": "condimentos",
+  "stock": 30,
+  "imagen": "pimienta.jpg"
+},
+{
+  "id": 17,
+  "nombre": "Rúcula",
+  "descripcion": "Hojas frescas de rúcula",
+  "precio": 600,
+  "categoria": "verduras",
+  "stock": 25,
+  "imagen": "Rucula.jpg"
+}
 ]

@@ -1,5 +1,9 @@
 import { navigate } from "../../../utils/router";
 
+/* =========================
+   IMÁGENES
+========================= */
+
 const imagenes: Record<string, string> = {
     "Arandanos.jpg": new URL("../../../assets/productos/Arandanos.jpg", import.meta.url).href,
     "Banana.jpg": new URL("../../../assets/productos/Banana.jpg", import.meta.url).href,
@@ -10,8 +14,20 @@ const imagenes: Record<string, string> = {
     "Morron.jpg": new URL("../../../assets/productos/Morron.jpg", import.meta.url).href,
     "Palta.jpg": new URL("../../../assets/productos/Palta.jpg", import.meta.url).href,
     "Zapallo.jpg": new URL("../../../assets/productos/Zapallo.jpg", import.meta.url).href,
-    "Zanahoria.jpg": new URL("../../../assets/productos/Zanahoria.jpg", import.meta.url).href
+    "Zanahoria.jpg": new URL("../../../assets/productos/Zanahoria.jpg", import.meta.url).href,
+
+    "Oregano.jpg": new URL("../../../assets/productos/Oregano.jpg", import.meta.url).href,
+    "Rucula.jpg": new URL("../../../assets/productos/Rucula.jpg", import.meta.url).href,
+    "Garbanzos.jpg": new URL("../../../assets/productos/Garbanzos.jpg", import.meta.url).href,
+    "Lentejas.jpg": new URL("../../../assets/productos/Lentejas.jpg", import.meta.url).href,
+    "Poroto.jpg": new URL("../../../assets/productos/Poroto.jpg", import.meta.url).href,
+    "Curry.jpg": new URL("../../../assets/productos/Curry.jpg", import.meta.url).href,
+    "pimienta.jpg": new URL("../../../assets/productos/pimienta.jpg", import.meta.url).href
 };
+
+/* =========================
+   LOAD STORE
+========================= */
 
 export async function loadStore() {
 
@@ -30,15 +46,28 @@ export async function loadStore() {
                 <button id="productos">🍎 Productos</button>
                 <button id="pedidos">📦 Pedidos</button>
                 <button id="carrito">🛒 Carrito</button>
-
                 <button id="logout">🚪 Logout</button>
             </nav>
 
         </header>
 
-        <main>
-            <h1>🥬 Frutas y Verduras</h1>
-            <div class="grid" id="productos-grid"></div>
+        <main class="layout">
+
+            <aside class="sidebar">
+                <h3>Categorías</h3>
+
+                <button class="filter-item" data-cat="todos">Todos</button>
+                <button class="filter-item" data-cat="frutas">Frutas</button>
+                <button class="filter-item" data-cat="verduras">Verduras</button>
+                <button class="filter-item" data-cat="legumbres">Legumbres</button>
+                <button class="filter-item" data-cat="condimentos">Condimentos</button>
+            </aside>
+
+            <section class="content">
+                <h1>🥬 Productos</h1>
+                <div class="grid" id="productos-grid"></div>
+            </section>
+
         </main>
     `;
 
@@ -46,21 +75,10 @@ export async function loadStore() {
        NAV
     ========================= */
 
-    document.getElementById("inicio")?.addEventListener("click", () => {
-        navigate("store");
-    });
-
-    document.getElementById("productos")?.addEventListener("click", () => {
-        navigate("store");
-    });
-
-    document.getElementById("pedidos")?.addEventListener("click", () => {
-        navigate("orders");
-    });
-
-    document.getElementById("carrito")?.addEventListener("click", () => {
-        navigate("cart");
-    });
+    document.getElementById("inicio")?.addEventListener("click", () => navigate("store"));
+    document.getElementById("productos")?.addEventListener("click", () => navigate("store"));
+    document.getElementById("pedidos")?.addEventListener("click", () => navigate("orders"));
+    document.getElementById("carrito")?.addEventListener("click", () => navigate("cart"));
 
     document.getElementById("logout")?.addEventListener("click", () => {
         localStorage.removeItem("user");
@@ -68,31 +86,61 @@ export async function loadStore() {
     });
 
     /* =========================
-       PRODUCTS RENDER
+       RENDER PRODUCTS
     ========================= */
 
     const contenedor = document.getElementById("productos-grid")!;
 
-    productos.forEach((producto: any) => {
+    function renderProductos(lista: any[]) {
 
-        contenedor.innerHTML += `
-            <div class="card">
+        contenedor.innerHTML = "";
 
-                <img src="${imagenes[producto.imagen]}" alt="${producto.nombre}">
+        lista.forEach((producto) => {
 
-                <h3>${producto.nombre}</h3>
+            contenedor.innerHTML += `
+                <div class="card">
 
-                <p>${producto.descripcion}</p>
+                    <img src="${imagenes[producto.imagen]}" alt="${producto.nombre}">
 
-                <h4>$${producto.precio}</h4>
+                    <h3>${producto.nombre}</h3>
 
-                <p><strong>Stock:</strong> ${producto.stock}</p>
+                    <p>${producto.descripcion}</p>
 
-                <button onclick='window.addProduct(${JSON.stringify(producto)})'>
-                    Agregar al carrito
-                </button>
+                    <h4>$${producto.precio}</h4>
 
-            </div>
-        `;
+                    <p><strong>Stock:</strong> ${producto.stock}</p>
+
+                    <button onclick='window.addProduct(${JSON.stringify(producto)})'>
+                        Agregar al carrito
+                    </button>
+
+                </div>
+            `;
+        });
+    }
+
+    renderProductos(productos);
+
+    /* =========================
+       FILTERS
+    ========================= */
+
+    document.querySelectorAll(".filter-item").forEach(btn => {
+
+        btn.addEventListener("click", (e) => {
+
+            const cat = (e.target as HTMLElement).dataset.cat;
+
+            if (cat === "todos") {
+                renderProductos(productos);
+                return;
+            }
+
+            const filtrados = productos.filter((p: any) =>
+                p.categoria === cat
+            );
+
+            renderProductos(filtrados);
+        });
     });
 }
