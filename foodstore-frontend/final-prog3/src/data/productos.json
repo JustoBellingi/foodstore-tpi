@@ -37,7 +37,7 @@
   },
   {
     "id": 5,
-    "nombre": "ManzanaV",
+    "nombre": "Manzana Verde",
     "descripcion": "Manzanas verdes crocantes",
     "precio": 900,
     "categoria": "frutas",
@@ -67,7 +67,7 @@
     "nombre": "Palta",
     "descripcion": "Paltas cremosas y maduras",
     "precio": 1800,
-    "categoria": "frutas",
+    "categoria": "verduras",
     "stock": 12,
     "imagen": "Palta.jpg"
   },

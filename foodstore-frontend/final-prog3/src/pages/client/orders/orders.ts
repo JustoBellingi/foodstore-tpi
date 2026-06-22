@@ -1,3 +1,5 @@
+import "./orders.css";
+
 export function loadOrders() {
 
     const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -12,7 +14,9 @@ export function loadOrders() {
 
                 <h1>📦 Mis Pedidos</h1>
 
-                <p>Aún no realizaste ningún pedido.</p>
+                <div class="empty-orders">
+                    <p>Aún no realizaste ningún pedido.</p>
+                </div>
 
             </div>
         `;
@@ -23,7 +27,7 @@ export function loadOrders() {
     app.innerHTML = `
         <div class="orders-container">
 
-            <h1>📦 Mis Pedidos</h1>
+            <h1>📦 Historial de Pedidos</h1>
 
             ${pedidos.map((pedido: any, index: number) => `
 
@@ -31,34 +35,47 @@ export function loadOrders() {
 
                     <div class="order-header">
 
-                        <div class="order-id">
-                            Pedido #${index + 1}
+                        <div>
+                            <div class="order-id">
+                                Pedido #${index + 1}
+                            </div>
+
+                            <div class="order-date">
+                                ${new Date(pedido.fecha).toLocaleString()}
+                            </div>
                         </div>
 
-                        <div class="order-date">
-                            ${new Date(pedido.fecha).toLocaleString()}
+                        <div class="order-status">
+                            Entregado
                         </div>
 
                     </div>
 
                     <div class="order-total">
-                        Total: $${pedido.total}
+                        Total abonado: $${pedido.total}
                     </div>
 
-                    <h4>🛒 Productos</h4>
+                    <h4 class="products-title">
+                        🛒 Productos comprados
+                    </h4>
 
                     <ul class="order-products">
 
                         ${pedido.detalles.map((detalle: any) => `
 
                             <li>
-                                <span>
-                                    ${detalle.nombre} x${detalle.cantidad}
-                                </span>
 
-                                <strong>
+                                <div>
+                                    <strong>${detalle.nombre}</strong>
+                                    <span>
+                                        Cantidad: ${detalle.cantidad}
+                                    </span>
+                                </div>
+
+                                <div class="subtotal">
                                     $${detalle.subtotal}
-                                </strong>
+                                </div>
+
                             </li>
 
                         `).join("")}

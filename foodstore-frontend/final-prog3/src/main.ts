@@ -1,5 +1,7 @@
 import { getRoute } from "./utils/router";
 import "./style.css";
+import { loadProductDetail }
+from "./pages/store/productDetail/productDetail";
 
 import { loadLogin } from "./pages/auth/login/login";
 import { loadStore } from "./pages/store/home/home";
@@ -28,7 +30,10 @@ import {
 
     const pedido = {
         fecha: new Date().toISOString(),
+        estado: "PENDIENTE",
+        formaPago: "EFECTIVO",
         total: getCartTotal(),
+
         detalles: cart.map(item => ({
             productoId: item.productId,
             nombre: item.name,
@@ -41,6 +46,38 @@ import {
     console.log("🧾 Pedido generado:", pedido);
 
     try {
+
+        /* =========================
+           DESCONTAR STOCK
+        ========================= */
+
+        const productos =
+            JSON.parse(localStorage.getItem("products") || "[]");
+
+        cart.forEach(item => {
+
+            const producto = productos.find(
+                (p:any) => p.id === item.productId
+            );
+
+            if(producto){
+
+                producto.stock -= item.quantity;
+
+                if(producto.stock <= 0){
+                    producto.disponible = false;
+                }
+            }
+        });
+
+        localStorage.setItem(
+            "products",
+            JSON.stringify(productos)
+        );
+
+        /* =========================
+           GUARDAR PEDIDO
+        ========================= */
 
         const pedidos =
             JSON.parse(localStorage.getItem("orders") || "[]");
@@ -80,6 +117,7 @@ import {
 };
 
 (window as any).increase = (id: number) => {
+
     const item = cart.find(i => i.productId === id);
 
     if (item) {
@@ -89,6 +127,7 @@ import {
 };
 
 (window as any).decrease = (id: number) => {
+
     const item = cart.find(i => i.productId === id);
 
     if (item && item.quantity > 1) {

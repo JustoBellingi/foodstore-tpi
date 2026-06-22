@@ -5,3 +5,4 @@ export function navigate(page: string) {
 export function getRoute() {
   return window.location.hash.replace("#", "") || "login";
 }
+

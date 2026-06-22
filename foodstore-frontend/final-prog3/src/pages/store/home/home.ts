@@ -42,11 +42,11 @@ export async function loadStore() {
             <div class="logo">🥬 FoodStore</div>
 
             <nav>
-                <button id="inicio">🏠 Inicio</button>
-                <button id="productos">🍎 Productos</button>
-                <button id="pedidos">📦 Pedidos</button>
-                <button id="carrito">🛒 Carrito</button>
-                <button id="logout">🚪 Logout</button>
+                <button id="inicio">Inicio</button>
+                <button id="productos">Productos</button>
+                <button id="pedidos">Pedidos</button>
+                <button id="carrito">Carrito</button>
+                <button id="logout">Logout</button>
             </nav>
 
         </header>
@@ -54,18 +54,44 @@ export async function loadStore() {
         <main class="layout">
 
             <aside class="sidebar">
+
                 <h3>Categorías</h3>
 
-                <button class="filter-item" data-cat="todos">Todos</button>
-                <button class="filter-item" data-cat="frutas">Frutas</button>
-                <button class="filter-item" data-cat="verduras">Verduras</button>
-                <button class="filter-item" data-cat="legumbres">Legumbres</button>
-                <button class="filter-item" data-cat="condimentos">Condimentos</button>
+                <button class="filter-item" data-cat="todos">
+                    Todos
+                </button>
+
+                <button class="filter-item" data-cat="frutas">
+                    Frutas
+                </button>
+
+                <button class="filter-item" data-cat="verduras">
+                    Verduras
+                </button>
+
+                <button class="filter-item" data-cat="legumbres">
+                    Legumbres
+                </button>
+
+                <button class="filter-item" data-cat="condimentos">
+                    Condimentos
+                </button>
+
             </aside>
 
             <section class="content">
+
                 <h1>🥬 Productos</h1>
+
+                <input
+                    type="text"
+                    id="search-input"
+                    placeholder="Buscar productos..."
+                    class="search-input"
+                >
+
                 <div class="grid" id="productos-grid"></div>
+
             </section>
 
         </main>
@@ -75,21 +101,32 @@ export async function loadStore() {
        NAV
     ========================= */
 
-    document.getElementById("inicio")?.addEventListener("click", () => navigate("store"));
-    document.getElementById("productos")?.addEventListener("click", () => navigate("store"));
-    document.getElementById("pedidos")?.addEventListener("click", () => navigate("orders"));
-    document.getElementById("carrito")?.addEventListener("click", () => navigate("cart"));
+    document.getElementById("inicio")
+        ?.addEventListener("click", () => navigate("store"));
 
-    document.getElementById("logout")?.addEventListener("click", () => {
-        localStorage.removeItem("user");
-        navigate("login");
-    });
+    document.getElementById("productos")
+        ?.addEventListener("click", () => navigate("store"));
+
+    document.getElementById("pedidos")
+        ?.addEventListener("click", () => navigate("orders"));
+
+    document.getElementById("carrito")
+        ?.addEventListener("click", () => navigate("cart"));
+
+    document.getElementById("logout")
+        ?.addEventListener("click", () => {
+
+            localStorage.removeItem("user");
+
+            navigate("login");
+        });
 
     /* =========================
        RENDER PRODUCTS
     ========================= */
 
-    const contenedor = document.getElementById("productos-grid")!;
+    const contenedor =
+        document.getElementById("productos-grid")!;
 
     function renderProductos(lista: any[]) {
 
@@ -98,9 +135,13 @@ export async function loadStore() {
         lista.forEach((producto) => {
 
             contenedor.innerHTML += `
-                <div class="card">
+                <div class="card"
+     onclick="window.openDetail(${producto.id})">
 
-                    <img src="${imagenes[producto.imagen]}" alt="${producto.nombre}">
+                    <img
+                        src="${imagenes[producto.imagen]}"
+                        alt="${producto.nombre}"
+                    >
 
                     <h3>${producto.nombre}</h3>
 
@@ -108,9 +149,14 @@ export async function loadStore() {
 
                     <h4>$${producto.precio}</h4>
 
-                    <p><strong>Stock:</strong> ${producto.stock}</p>
+                    <p>
+                        <strong>Stock:</strong>
+                        ${producto.stock}
+                    </p>
 
-                    <button onclick='window.addProduct(${JSON.stringify(producto)})'>
+                    <button
+                        onclick='window.addProduct(${JSON.stringify(producto)})'
+                    >
                         Agregar al carrito
                     </button>
 
@@ -122,6 +168,27 @@ export async function loadStore() {
     renderProductos(productos);
 
     /* =========================
+       SEARCH
+    ========================= */
+
+    const searchInput =
+        document.getElementById("search-input") as HTMLInputElement;
+
+    searchInput.addEventListener("input", () => {
+
+        const texto = searchInput.value.toLowerCase();
+
+        const filtrados = productos.filter((p:any) =>
+
+            p.nombre.toLowerCase().includes(texto) ||
+
+            p.descripcion.toLowerCase().includes(texto)
+        );
+
+        renderProductos(filtrados);
+    });
+
+    /* =========================
        FILTERS
     ========================= */
 
@@ -129,10 +196,13 @@ export async function loadStore() {
 
         btn.addEventListener("click", (e) => {
 
-            const cat = (e.target as HTMLElement).dataset.cat;
+            const cat =
+                (e.target as HTMLElement).dataset.cat;
 
             if (cat === "todos") {
+
                 renderProductos(productos);
+
                 return;
             }
 
