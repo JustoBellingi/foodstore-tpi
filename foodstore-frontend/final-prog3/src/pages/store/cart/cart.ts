@@ -1,4 +1,5 @@
 import "./cart.css";
+import { navigate } from "../../../utils/router";
 
 export interface CartItem {
     productId: number;
@@ -9,56 +10,60 @@ export interface CartItem {
 }
 
 /* =========================
-   STORE
+   STATE + STORAGE
 ========================= */
 
-export const cart: CartItem[] = [];
+export let cart: CartItem[] = JSON.parse(
+    localStorage.getItem("cart") || "[]"
+);
+
+function saveCart() {
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
 
 /* =========================
-   ADD TO CART
+   ADD
 ========================= */
 
 export function addToCart(product: any) {
 
-    const existing = cart.find(item => item.productId === product.id);
+    const existing = cart.find(i => i.productId === product.id);
 
     if (existing) {
         existing.quantity += 1;
-        return;
+    } else {
+        cart.push({
+            productId: product.id,
+            name: product.nombre,
+            price: product.precio,
+            quantity: 1,
+            image: product.imagen
+        });
     }
 
-    cart.push({
-        productId: product.id,
-        name: product.nombre,
-        price: product.precio,
-        quantity: 1,
-        image: product.imagen
-    });
+    saveCart();
 }
 
 /* =========================
-   REMOVE ITEM
+   REMOVE
 ========================= */
 
 export function removeFromCart(productId: number) {
-
-    const index = cart.findIndex(item => item.productId === productId);
-
-    if (index !== -1) {
-        cart.splice(index, 1);
-    }
+    cart = cart.filter(i => i.productId !== productId);
+    saveCart();
 }
 
 /* =========================
-   UPDATE QUANTITY
+   UPDATE
 ========================= */
 
 export function updateQuantity(productId: number, quantity: number) {
 
     const item = cart.find(i => i.productId === productId);
 
-    if (item && quantity > 0) {
-        item.quantity = quantity;
+    if (item) {
+        item.quantity = Math.max(1, quantity);
+        saveCart();
     }
 }
 
@@ -66,11 +71,8 @@ export function updateQuantity(productId: number, quantity: number) {
    TOTAL
 ========================= */
 
-export function getCartTotal(): number {
-
-    return cart.reduce((total, item) => {
-        return total + item.price * item.quantity;
-    }, 0);
+export function getCartTotal() {
+    return cart.reduce((t, i) => t + i.price * i.quantity, 0);
 }
 
 /* =========================
@@ -78,15 +80,8 @@ export function getCartTotal(): number {
 ========================= */
 
 export function clearCart() {
-    cart.length = 0;
-}
-
-/* =========================
-   GET CART
-========================= */
-
-export function getCart() {
-    return cart;
+    cart = [];
+    saveCart();
 }
 
 /* =========================
@@ -95,17 +90,18 @@ export function getCart() {
 
 export function loadCart() {
 
-    const app = document.querySelector<HTMLDivElement>("#app")!;
+    const app = document.querySelector("#app") as HTMLDivElement;
 
     if (cart.length === 0) {
         app.innerHTML = `
             <h1>Carrito</h1>
             <p>Tu carrito está vacío.</p>
-
-            <button onclick="location.hash='store'">
-                Volver a la tienda
-            </button>
+            <button id="back">Volver</button>
         `;
+
+        document.getElementById("back")
+            ?.addEventListener("click", () => navigate("store"));
+
         return;
     }
 
@@ -117,41 +113,85 @@ export function loadCart() {
                 <div class="cart-item">
 
                     <h3>${item.name}</h3>
-
                     <p>Precio: $${item.price}</p>
-
                     <p>Cantidad: ${item.quantity}</p>
 
                     <div class="cart-actions">
-
-                        <button class="cart-btn" onclick="window.decrease(${item.productId})">
-                            -
-                        </button>
-
-                        <button class="cart-btn" onclick="window.increase(${item.productId})">
-                            +
-                        </button>
-
-                        <button class="cart-btn danger cart-btn-delete" onclick="window.removeItem(${item.productId})">
+                        <button onclick="window.decrease(${item.productId})">-</button>
+                        <button onclick="window.increase(${item.productId})">+</button>
+                        <button onclick="window.removeItem(${item.productId})">
                             Eliminar
                         </button>
-
                     </div>
 
                 </div>
             `).join("")}
         </div>
 
-        <h2 class="cart-total">
-            Total: $${getCartTotal()}
-        </h2>
+        <h2>Total: $${getCartTotal()}</h2>
 
-        <button class="checkout-btn" onclick="window.checkout()">
+        <button onclick="window.checkout()">
             Finalizar compra
         </button>
 
-        <button onclick="location.hash='store'">
-            Seguir comprando
-        </button>
+        <button id="back2">Seguir comprando</button>
     `;
+
+    document.getElementById("back2")
+        ?.addEventListener("click", () => navigate("store"));
 }
+
+/* =========================
+   CHECKOUT
+========================= */
+
+window.checkout = () => {
+
+    const products = JSON.parse(localStorage.getItem("products") || "[]");
+    const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+
+    if (cart.length === 0) return;
+
+    // validar stock
+    for (const item of cart) {
+        const product = products.find((p: any) => p.id === item.productId);
+
+        if (!product || product.stock < item.quantity) {
+            alert(`Stock insuficiente en ${item.name}`);
+            return;
+        }
+    }
+
+    // descontar stock
+    for (const item of cart) {
+        const product = products.find((p: any) => p.id === item.productId);
+        product.stock -= item.quantity;
+    }
+
+    localStorage.setItem("products", JSON.stringify(products));
+
+    // armar pedido
+    const newOrder = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        status: "PENDIENTE",
+        payment: "EFECTIVO",
+        total: getCartTotal(),
+        details: cart.map(item => ({
+            productId: item.productId,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            subtotal: item.price * item.quantity
+        }))
+    };
+
+    orders.push(newOrder);
+    localStorage.setItem("orders", JSON.stringify(orders));
+
+    clearCart();
+
+    alert("Compra realizada con éxito");
+
+    location.hash = "store";
+};

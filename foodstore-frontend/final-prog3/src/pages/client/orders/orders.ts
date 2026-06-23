@@ -4,8 +4,7 @@ export function loadOrders() {
 
     const app = document.querySelector<HTMLDivElement>("#app")!;
 
-    const pedidos =
-        JSON.parse(localStorage.getItem("orders") || "[]");
+    const pedidos = JSON.parse(localStorage.getItem("orders") || "[]");
 
     if (pedidos.length === 0) {
 
@@ -36,17 +35,23 @@ export function loadOrders() {
                     <div class="order-header">
 
                         <div>
+
                             <div class="order-id">
                                 Pedido #${index + 1}
                             </div>
 
                             <div class="order-date">
-                                ${new Date(pedido.fecha).toLocaleString()}
+                                ${new Date(pedido.date).toLocaleString()}
                             </div>
+
+                            <div class="order-payment">
+                                💳 ${pedido.payment}
+                            </div>
+
                         </div>
 
                         <div class="order-status">
-                            Entregado
+                            ${pedido.status}
                         </div>
 
                     </div>
@@ -61,19 +66,17 @@ export function loadOrders() {
 
                     <ul class="order-products">
 
-                        ${pedido.detalles.map((detalle: any) => `
+                        ${pedido.details.map((d: any) => `
 
                             <li>
 
                                 <div>
-                                    <strong>${detalle.nombre}</strong>
-                                    <span>
-                                        Cantidad: ${detalle.cantidad}
-                                    </span>
+                                    <strong>${d.name}</strong>
+                                    <span>Cantidad: ${d.quantity}</span>
                                 </div>
 
                                 <div class="subtotal">
-                                    $${detalle.subtotal}
+                                    $${d.subtotal}
                                 </div>
 
                             </li>
