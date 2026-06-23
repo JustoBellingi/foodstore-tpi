@@ -1,27 +1,21 @@
-import { getRoute } from "./utils/router";
 import "./style.css";
-import { loadProductDetail }
-from "./pages/store/productDetail/productDetail";
+
+import { getRoute } from "./utils/router";
 
 import { loadLogin } from "./pages/auth/login/login";
 import { loadStore } from "./pages/store/home/home";
-import { loadCart } from "./pages/store/cart/cart";
+import { loadCart, addToCart, removeFromCart, updateQuantity, clearCart, getCartTotal } 
+from "./pages/store/cart/cart";
+
 import { loadOrders } from "./pages/client/orders/orders";
 
-import {
-    cart,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    getCartTotal
-} from "./pages/store/cart/cart";
-
 /* =========================
-   CHECKOUT
+   CHECKOUT GLOBAL
 ========================= */
 
 (window as any).checkout = async () => {
+
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
     if (cart.length === 0) {
         alert("El carrito está vacío");
@@ -34,7 +28,7 @@ import {
         formaPago: "EFECTIVO",
         total: getCartTotal(),
 
-        detalles: cart.map(item => ({
+        detalles: cart.map((item: any) => ({
             productoId: item.productId,
             nombre: item.name,
             cantidad: item.quantity,
@@ -43,68 +37,39 @@ import {
         }))
     };
 
-    console.log("🧾 Pedido generado:", pedido);
-
     try {
+        const productos = JSON.parse(localStorage.getItem("products") || "[]");
+        const pedidos = JSON.parse(localStorage.getItem("orders") || "[]");
 
-        /* =========================
-           DESCONTAR STOCK
-        ========================= */
+        // descontar stock
+        cart.forEach((item: any) => {
+            const product = productos.find((p: any) => p.id === item.productId);
 
-        const productos =
-            JSON.parse(localStorage.getItem("products") || "[]");
-
-        cart.forEach(item => {
-
-            const producto = productos.find(
-                (p:any) => p.id === item.productId
-            );
-
-            if(producto){
-
-                producto.stock -= item.quantity;
-
-                if(producto.stock <= 0){
-                    producto.disponible = false;
-                }
+            if (product) {
+                product.stock -= item.quantity;
             }
         });
 
-        localStorage.setItem(
-            "products",
-            JSON.stringify(productos)
-        );
+        localStorage.setItem("products", JSON.stringify(productos));
 
-        /* =========================
-           GUARDAR PEDIDO
-        ========================= */
-
-        const pedidos =
-            JSON.parse(localStorage.getItem("orders") || "[]");
-
+        // guardar pedido
         pedidos.push(pedido);
-
-        localStorage.setItem(
-            "orders",
-            JSON.stringify(pedidos)
-        );
-
-        alert("Pedido realizado con éxito 🎉");
+        localStorage.setItem("orders", JSON.stringify(pedidos));
 
         clearCart();
 
+        alert("Pedido realizado con éxito 🎉");
+
         location.hash = "orders";
 
-    } catch (error) {
-
-        console.error(error);
-
+    } catch (err) {
+        console.error(err);
         alert("Error al crear el pedido");
     }
 };
 
 /* =========================
-   CART ACTIONS
+   CART ACTIONS GLOBALES
 ========================= */
 
 (window as any).addProduct = (product: any) => {
@@ -117,8 +82,9 @@ import {
 };
 
 (window as any).increase = (id: number) => {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    const item = cart.find(i => i.productId === id);
+    const item = cart.find((i: any) => i.productId === id);
 
     if (item) {
         updateQuantity(id, item.quantity + 1);
@@ -127,8 +93,9 @@ import {
 };
 
 (window as any).decrease = (id: number) => {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    const item = cart.find(i => i.productId === id);
+    const item = cart.find((i: any) => i.productId === id);
 
     if (item && item.quantity > 1) {
         updateQuantity(id, item.quantity - 1);
@@ -141,9 +108,10 @@ import {
 ========================= */
 
 function render() {
+    const route = getRoute();
+    console.log("ROUTE:", route);
 
-    switch (getRoute()) {
-
+    switch (route) {
         case "login":
             loadLogin();
             break;
@@ -167,5 +135,4 @@ function render() {
 }
 
 window.addEventListener("hashchange", render);
-
 render();

@@ -2,93 +2,43 @@ import "./orders.css";
 
 export function loadOrders() {
 
-    const app = document.querySelector<HTMLDivElement>("#app")!;
+    const app = document.querySelector("#app") as HTMLDivElement;
 
     const pedidos = JSON.parse(localStorage.getItem("orders") || "[]");
 
-    if (pedidos.length === 0) {
-
+    if (!pedidos.length) {
         app.innerHTML = `
-            <div class="orders-container">
-
-                <h1>📦 Mis Pedidos</h1>
-
-                <div class="empty-orders">
-                    <p>Aún no realizaste ningún pedido.</p>
-                </div>
-
-            </div>
+            <h1>📦 Mis pedidos</h1>
+            <p>No hiciste compras todavía.</p>
         `;
-
         return;
     }
 
     app.innerHTML = `
+        <h1>📦 Mis pedidos</h1>
+
         <div class="orders-container">
-
-            <h1>📦 Historial de Pedidos</h1>
-
             ${pedidos.map((pedido: any, index: number) => `
-
                 <div class="order-card">
 
-                    <div class="order-header">
+                    <h3>Pedido #${index + 1}</h3>
 
-                        <div>
+                    <p>Fecha: ${new Date(pedido.fecha).toLocaleString()}</p>
+                    <p>Estado: ${pedido.estado}</p>
+                    <p>Total: $${pedido.total}</p>
 
-                            <div class="order-id">
-                                Pedido #${index + 1}
-                            </div>
+                    <h4>Productos</h4>
 
-                            <div class="order-date">
-                                ${new Date(pedido.date).toLocaleString()}
-                            </div>
-
-                            <div class="order-payment">
-                                💳 ${pedido.payment}
-                            </div>
-
-                        </div>
-
-                        <div class="order-status">
-                            ${pedido.status}
-                        </div>
-
-                    </div>
-
-                    <div class="order-total">
-                        Total abonado: $${pedido.total}
-                    </div>
-
-                    <h4 class="products-title">
-                        🛒 Productos comprados
-                    </h4>
-
-                    <ul class="order-products">
-
-                        ${pedido.details.map((d: any) => `
-
+                    <ul>
+                        ${pedido.detalles.map((d: any) => `
                             <li>
-
-                                <div>
-                                    <strong>${d.name}</strong>
-                                    <span>Cantidad: ${d.quantity}</span>
-                                </div>
-
-                                <div class="subtotal">
-                                    $${d.subtotal}
-                                </div>
-
+                                ${d.nombre} x${d.cantidad} - $${d.subtotal}
                             </li>
-
                         `).join("")}
-
                     </ul>
 
                 </div>
-
             `).join("")}
-
         </div>
     `;
 }

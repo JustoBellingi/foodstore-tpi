@@ -10,22 +10,23 @@ export interface CartItem {
 }
 
 /* =========================
-   STATE + STORAGE
+   STORAGE
 ========================= */
 
-export let cart: CartItem[] = JSON.parse(
-    localStorage.getItem("cart") || "[]"
-);
+function getCart(): CartItem[] {
+    return JSON.parse(localStorage.getItem("cart") || "[]");
+}
 
-function saveCart() {
+function saveCart(cart: CartItem[]) {
     localStorage.setItem("cart", JSON.stringify(cart));
 }
 
 /* =========================
-   ADD
+   ACTIONS
 ========================= */
 
 export function addToCart(product: any) {
+    const cart = getCart();
 
     const existing = cart.find(i => i.productId === product.id);
 
@@ -41,47 +42,30 @@ export function addToCart(product: any) {
         });
     }
 
-    saveCart();
+    saveCart(cart);
 }
 
-/* =========================
-   REMOVE
-========================= */
-
-export function removeFromCart(productId: number) {
-    cart = cart.filter(i => i.productId !== productId);
-    saveCart();
+export function removeFromCart(id: number) {
+    const cart = getCart().filter(i => i.productId !== id);
+    saveCart(cart);
 }
 
-/* =========================
-   UPDATE
-========================= */
+export function updateQuantity(id: number, qty: number) {
+    const cart = getCart();
 
-export function updateQuantity(productId: number, quantity: number) {
+    const item = cart.find(i => i.productId === id);
+    if (item) item.quantity = Math.max(1, qty);
 
-    const item = cart.find(i => i.productId === productId);
-
-    if (item) {
-        item.quantity = Math.max(1, quantity);
-        saveCart();
-    }
+    saveCart(cart);
 }
-
-/* =========================
-   TOTAL
-========================= */
-
-export function getCartTotal() {
-    return cart.reduce((t, i) => t + i.price * i.quantity, 0);
-}
-
-/* =========================
-   CLEAR
-========================= */
 
 export function clearCart() {
-    cart = [];
-    saveCart();
+    localStorage.removeItem("cart");
+}
+
+export function getCartTotal(): number {
+    const cart = getCart();
+    return cart.reduce((t, i) => t + i.price * i.quantity, 0);
 }
 
 /* =========================
@@ -89,13 +73,13 @@ export function clearCart() {
 ========================= */
 
 export function loadCart() {
-
+    const cart = getCart();
     const app = document.querySelector("#app") as HTMLDivElement;
 
-    if (cart.length === 0) {
+    if (!cart.length) {
         app.innerHTML = `
             <h1>Carrito</h1>
-            <p>Tu carrito está vacío.</p>
+            <p>Tu carrito está vacío</p>
             <button id="back">Volver</button>
         `;
 
@@ -113,8 +97,8 @@ export function loadCart() {
                 <div class="cart-item">
 
                     <h3>${item.name}</h3>
-                    <p>Precio: $${item.price}</p>
-                    <p>Cantidad: ${item.quantity}</p>
+                    <p>$${item.price}</p>
+                    <p>Cant: ${item.quantity}</p>
 
                     <div class="cart-actions">
                         <button onclick="window.decrease(${item.productId})">-</button>
@@ -140,58 +124,3 @@ export function loadCart() {
     document.getElementById("back2")
         ?.addEventListener("click", () => navigate("store"));
 }
-
-/* =========================
-   CHECKOUT
-========================= */
-
-window.checkout = () => {
-
-    const products = JSON.parse(localStorage.getItem("products") || "[]");
-    const orders = JSON.parse(localStorage.getItem("orders") || "[]");
-
-    if (cart.length === 0) return;
-
-    // validar stock
-    for (const item of cart) {
-        const product = products.find((p: any) => p.id === item.productId);
-
-        if (!product || product.stock < item.quantity) {
-            alert(`Stock insuficiente en ${item.name}`);
-            return;
-        }
-    }
-
-    // descontar stock
-    for (const item of cart) {
-        const product = products.find((p: any) => p.id === item.productId);
-        product.stock -= item.quantity;
-    }
-
-    localStorage.setItem("products", JSON.stringify(products));
-
-    // armar pedido
-    const newOrder = {
-        id: Date.now(),
-        date: new Date().toISOString(),
-        status: "PENDIENTE",
-        payment: "EFECTIVO",
-        total: getCartTotal(),
-        details: cart.map(item => ({
-            productId: item.productId,
-            name: item.name,
-            quantity: item.quantity,
-            price: item.price,
-            subtotal: item.price * item.quantity
-        }))
-    };
-
-    orders.push(newOrder);
-    localStorage.setItem("orders", JSON.stringify(orders));
-
-    clearCart();
-
-    alert("Compra realizada con éxito");
-
-    location.hash = "store";
-};
