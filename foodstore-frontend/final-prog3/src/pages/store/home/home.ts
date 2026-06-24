@@ -21,7 +21,7 @@ const imagenes: Record<string, string> = {
   "Lentejas.jpg": new URL("../../../assets/productos/Lentejas.jpg", import.meta.url).href,
   "Poroto.jpg": new URL("../../../assets/productos/Poroto.jpg", import.meta.url).href,
   "Curry.jpg": new URL("../../../assets/productos/Curry.jpg", import.meta.url).href,
-  "pimienta.jpg": new URL("../../../assets/productos/pimienta.jpg", import.meta.url).href
+  "pimienta.jpg": new URL("../../../assets/productos/pimienta.jpg", import.meta.url).href,
 };
 
 /* =========================
@@ -29,13 +29,20 @@ const imagenes: Record<string, string> = {
 ========================= */
 
 export async function loadStore() {
-  const response = await fetch("/src/data/productos.json");
-const productos = await response.json();
-  const app = document.querySelector<HTMLDivElement>("#app")!;
+  let productos = JSON.parse(localStorage.getItem("products") || "null");
+
+  if (!productos) {
+    const response = await fetch("/src/data/productos.json");
+    productos = await response.json();
+    localStorage.setItem("products", JSON.stringify(productos));
+  }
+
+  const app = document.querySelector("#app") as HTMLDivElement;
 
   app.innerHTML = `
     <header class="navbar">
       <div class="logo">🥬 FoodStore</div>
+
       <nav>
         <button id="inicio">Inicio</button>
         <button id="productos">Productos</button>
@@ -48,6 +55,7 @@ const productos = await response.json();
     <main class="layout">
       <aside class="sidebar">
         <h3>Categorías</h3>
+
         <button class="filter-item" data-cat="todos">Todos</button>
         <button class="filter-item" data-cat="frutas">Frutas</button>
         <button class="filter-item" data-cat="verduras">Verduras</button>
@@ -71,39 +79,31 @@ const productos = await response.json();
   `;
 
   /* =========================
-     NAV
+     NAV EVENTS
   ========================= */
 
-  document.getElementById("inicio")
-    ?.addEventListener("click", () => navigate("store"));
+  document.getElementById("inicio")?.addEventListener("click", () => navigate("store"));
+  document.getElementById("productos")?.addEventListener("click", () => navigate("store"));
+  document.getElementById("pedidos")?.addEventListener("click", () => navigate("orders"));
+  document.getElementById("carrito")?.addEventListener("click", () => navigate("cart"));
 
-  document.getElementById("productos")
-    ?.addEventListener("click", () => navigate("store"));
-
-  document.getElementById("pedidos")
-    ?.addEventListener("click", () => navigate("orders"));
-
-  document.getElementById("carrito")
-    ?.addEventListener("click", () => navigate("cart"));
-
-  document.getElementById("logout")
-    ?.addEventListener("click", () => {
-      localStorage.removeItem("user");
-      navigate("login");
-    });
+  document.getElementById("logout")?.addEventListener("click", () => {
+    localStorage.removeItem("user");
+    navigate("login");
+  });
 
   /* =========================
      RENDER PRODUCTS
   ========================= */
 
-  const contenedor = document.getElementById("productos-grid")!;
+  const contenedor = document.getElementById("productos-grid") as HTMLDivElement;
 
   function renderProductos(lista: any[]) {
     contenedor.innerHTML = "";
 
     lista.forEach((producto) => {
       contenedor.innerHTML += `
-        <div class="card" onclick="window.openDetail(${producto.id})">
+        <div class="card">
           <img src="${imagenes[producto.imagen]}" alt="${producto.nombre}" />
           <h3>${producto.nombre}</h3>
           <p>${producto.descripcion}</p>
@@ -126,7 +126,7 @@ const productos = await response.json();
 
   const searchInput = document.getElementById("search-input") as HTMLInputElement;
 
-  searchInput.addEventListener("input", () => {
+  searchInput?.addEventListener("input", () => {
     const texto = searchInput.value.toLowerCase();
 
     const filtrados = productos.filter((p: any) =>
@@ -150,11 +150,7 @@ const productos = await response.json();
         return;
       }
 
-      const filtrados = productos.filter(
-        (p: any) => p.categoria === cat
-      );
-
-      renderProductos(filtrados);
+      renderProductos(productos.filter((p: any) => p.categoria === cat));
     });
   });
 }

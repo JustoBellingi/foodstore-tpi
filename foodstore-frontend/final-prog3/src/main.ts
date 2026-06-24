@@ -4,103 +4,98 @@ import { getRoute } from "./utils/router";
 
 import { loadLogin } from "./pages/auth/login/login";
 import { loadStore } from "./pages/store/home/home";
-import { loadCart, addToCart, removeFromCart, updateQuantity, clearCart, getCartTotal } 
-from "./pages/store/cart/cart";
-
+import { loadCart } from "./pages/store/cart/cart";
 import { loadOrders } from "./pages/client/orders/orders";
+
+import {
+  addToCart,
+  removeFromCart,
+  updateQuantity,
+  clearCart,
+  getCartTotal,
+} from "./pages/store/cart/cart";
 
 /* =========================
    CHECKOUT GLOBAL
 ========================= */
 
-(window as any).checkout = async () => {
+(window as any).checkout = () => {
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  if (!cart.length) {
+    alert("El carrito está vacío");
+    return;
+  }
 
-    if (cart.length === 0) {
-        alert("El carrito está vacío");
-        return;
-    }
+  const pedido = {
+    fecha: new Date().toISOString(),
+    estado: "PENDIENTE",
+    formaPago: "EFECTIVO",
+    total: getCartTotal(),
 
-    const pedido = {
-        fecha: new Date().toISOString(),
-        estado: "PENDIENTE",
-        formaPago: "EFECTIVO",
-        total: getCartTotal(),
+    detalles: cart.map((item: any) => ({
+      productoId: item.productId,
+      nombre: item.name,
+      cantidad: item.quantity,
+      precio: item.price,
+      subtotal: item.price * item.quantity,
+    })),
+  };
 
-        detalles: cart.map((item: any) => ({
-            productoId: item.productId,
-            nombre: item.name,
-            cantidad: item.quantity,
-            precio: item.price,
-            subtotal: item.price * item.quantity
-        }))
-    };
+  try {
+    const productos = JSON.parse(localStorage.getItem("products") || "[]");
+    const pedidos = JSON.parse(localStorage.getItem("orders") || "[]");
 
-    try {
-        const productos = JSON.parse(localStorage.getItem("products") || "[]");
-        const pedidos = JSON.parse(localStorage.getItem("orders") || "[]");
+    // descontar stock
+    cart.forEach((item: any) => {
+      const product = productos.find((p: any) => p.id === item.productId);
+      if (product) product.stock -= item.quantity;
+    });
 
-        // descontar stock
-        cart.forEach((item: any) => {
-            const product = productos.find((p: any) => p.id === item.productId);
+    localStorage.setItem("products", JSON.stringify(productos));
 
-            if (product) {
-                product.stock -= item.quantity;
-            }
-        });
+    pedidos.push(pedido);
+    localStorage.setItem("orders", JSON.stringify(pedidos));
 
-        localStorage.setItem("products", JSON.stringify(productos));
+    clearCart();
 
-        // guardar pedido
-        pedidos.push(pedido);
-        localStorage.setItem("orders", JSON.stringify(pedidos));
-
-        clearCart();
-
-        alert("Pedido realizado con éxito 🎉");
-
-        location.hash = "orders";
-
-    } catch (err) {
-        console.error(err);
-        alert("Error al crear el pedido");
-    }
+    alert("Pedido realizado 🎉");
+    location.hash = "orders";
+  } catch (err) {
+    console.error(err);
+    alert("Error en checkout");
+  }
 };
 
 /* =========================
    CART ACTIONS GLOBALES
 ========================= */
 
-(window as any).addProduct = (product: any) => {
-    addToCart(product);
-};
+(window as any).addProduct = addToCart;
 
 (window as any).removeItem = (id: number) => {
-    removeFromCart(id);
-    loadCart();
+  removeFromCart(id);
+  loadCart();
 };
 
 (window as any).increase = (id: number) => {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const item = cart.find((i: any) => i.productId === id);
 
-    const item = cart.find((i: any) => i.productId === id);
-
-    if (item) {
-        updateQuantity(id, item.quantity + 1);
-        loadCart();
-    }
+  if (item) {
+    updateQuantity(id, item.quantity + 1);
+    loadCart();
+  }
 };
 
 (window as any).decrease = (id: number) => {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const item = cart.find((i: any) => i.productId === id);
 
-    const item = cart.find((i: any) => i.productId === id);
-
-    if (item && item.quantity > 1) {
-        updateQuantity(id, item.quantity - 1);
-        loadCart();
-    }
+  if (item && item.quantity > 1) {
+    updateQuantity(id, item.quantity - 1);
+    loadCart();
+  }
 };
 
 /* =========================
@@ -108,30 +103,28 @@ import { loadOrders } from "./pages/client/orders/orders";
 ========================= */
 
 function render() {
-    const route = getRoute();
-    console.log("ROUTE:", route);
+  const route = getRoute();
 
-    switch (route) {
-        case "login":
-            loadLogin();
-            break;
+  switch (route) {
+    case "login":
+      loadLogin();
+      break;
 
-        case "store":
-            loadStore();
-            break;
+    case "store":
+      loadStore();
+      break;
 
-        case "cart":
-            loadCart();
-            break;
+    case "cart":
+      loadCart();
+      break;
 
-        case "orders":
-            loadOrders();
-            break;
+    case "orders":
+      loadOrders();
+      break;
 
-        default:
-            loadLogin();
-            break;
-    }
+    default:
+      loadLogin();
+  }
 }
 
 window.addEventListener("hashchange", render);
