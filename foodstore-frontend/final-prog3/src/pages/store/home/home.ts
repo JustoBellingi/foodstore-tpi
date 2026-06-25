@@ -1,4 +1,5 @@
 import { navigate } from "../../../utils/router";
+import { getProducts } from "../../../utils/products";
 
 /* =========================
    IMÁGENES
@@ -29,12 +30,15 @@ const imagenes: Record<string, string> = {
 ========================= */
 
 export async function loadStore() {
-  let productos = JSON.parse(localStorage.getItem("products") || "null");
 
-  if (!productos) {
-    const response = await fetch("/src/data/productos.json");
-    productos = await response.json();
-    localStorage.setItem("products", JSON.stringify(productos));
+  // 📦 base real
+  let productos = await getProducts();
+
+  // 🛠️ si admin modificó algo, se aplica encima
+  const cache = localStorage.getItem("admin-products");
+
+  if (cache) {
+    productos = JSON.parse(cache);
   }
 
   const app = document.querySelector("#app") as HTMLDivElement;
@@ -48,11 +52,13 @@ export async function loadStore() {
         <button id="productos">Productos</button>
         <button id="pedidos">Pedidos</button>
         <button id="carrito">Carrito</button>
+        <button id="admin">Admin</button>
         <button id="logout">Logout</button>
       </nav>
     </header>
 
     <main class="layout">
+
       <aside class="sidebar">
         <h3>Categorías</h3>
 
@@ -64,7 +70,8 @@ export async function loadStore() {
       </aside>
 
       <section class="content">
-        <h1>🥬 Productos</h1>
+
+        <h1>Productos</h1>
 
         <input
           type="text"
@@ -74,18 +81,21 @@ export async function loadStore() {
         />
 
         <div class="grid" id="productos-grid"></div>
+
       </section>
+
     </main>
   `;
 
   /* =========================
-     NAV EVENTS
+     NAV
   ========================= */
 
   document.getElementById("inicio")?.addEventListener("click", () => navigate("store"));
   document.getElementById("productos")?.addEventListener("click", () => navigate("store"));
   document.getElementById("pedidos")?.addEventListener("click", () => navigate("orders"));
   document.getElementById("carrito")?.addEventListener("click", () => navigate("cart"));
+  document.getElementById("admin")?.addEventListener("click", () => navigate("admin"));
 
   document.getElementById("logout")?.addEventListener("click", () => {
     localStorage.removeItem("user");
@@ -93,24 +103,24 @@ export async function loadStore() {
   });
 
   /* =========================
-     RENDER PRODUCTS
+     RENDER
   ========================= */
 
   const contenedor = document.getElementById("productos-grid") as HTMLDivElement;
 
-  function renderProductos(lista: any[]) {
+  function render(lista: any[]) {
     contenedor.innerHTML = "";
 
-    lista.forEach((producto) => {
+    lista.forEach((p) => {
       contenedor.innerHTML += `
         <div class="card">
-          <img src="${imagenes[producto.imagen]}" alt="${producto.nombre}" />
-          <h3>${producto.nombre}</h3>
-          <p>${producto.descripcion}</p>
-          <h4>$${producto.precio}</h4>
-          <p><strong>Stock:</strong> ${producto.stock}</p>
+          <img src="${imagenes[p.imagen]}" />
+          <h3>${p.nombre}</h3>
+          <p>${p.descripcion}</p>
+          <h4>$${p.precio}</h4>
+          <p><strong>Stock:</strong> ${p.stock}</p>
 
-          <button onclick='window.addProduct(${JSON.stringify(producto)})'>
+          <button onclick='window.addProduct(${JSON.stringify(p)})'>
             Agregar al carrito
           </button>
         </div>
@@ -118,7 +128,7 @@ export async function loadStore() {
     });
   }
 
-  renderProductos(productos);
+  render(productos);
 
   /* =========================
      SEARCH
@@ -127,14 +137,15 @@ export async function loadStore() {
   const searchInput = document.getElementById("search-input") as HTMLInputElement;
 
   searchInput?.addEventListener("input", () => {
-    const texto = searchInput.value.toLowerCase();
 
-    const filtrados = productos.filter((p: any) =>
-      p.nombre.toLowerCase().includes(texto) ||
-      p.descripcion.toLowerCase().includes(texto)
+    const text = searchInput.value.toLowerCase();
+
+    const filtered = productos.filter((p: any) =>
+      p.nombre.toLowerCase().includes(text) ||
+      p.descripcion.toLowerCase().includes(text)
     );
 
-    renderProductos(filtrados);
+    render(filtered);
   });
 
   /* =========================
@@ -143,14 +154,15 @@ export async function loadStore() {
 
   document.querySelectorAll(".filter-item").forEach((btn) => {
     btn.addEventListener("click", (e) => {
+
       const cat = (e.target as HTMLElement).dataset.cat;
 
       if (cat === "todos") {
-        renderProductos(productos);
+        render(productos);
         return;
       }
 
-      renderProductos(productos.filter((p: any) => p.categoria === cat));
+      render(productos.filter((p: any) => p.categoria === cat));
     });
   });
 }
