@@ -32,3 +32,7 @@ application {
 run {
     standardInput = System.in
 }
+
+tasks.withType(JavaExec).configureEach {
+    standardInput = System.in
+}
