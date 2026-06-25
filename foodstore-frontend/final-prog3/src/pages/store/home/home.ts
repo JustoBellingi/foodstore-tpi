@@ -31,10 +31,8 @@ const imagenes: Record<string, string> = {
 
 export async function loadStore() {
 
-  // 📦 base real
   let productos = await getProducts();
 
-  // 🛠️ si admin modificó algo, se aplica encima
   const cache = localStorage.getItem("admin-products");
 
   if (cache) {

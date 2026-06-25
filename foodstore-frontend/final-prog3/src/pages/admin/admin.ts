@@ -4,11 +4,7 @@ import { getProducts } from "../../utils/products";
 export async function loadAdmin() {
 
   const app = document.querySelector<HTMLDivElement>("#app")!;
-
-  // 🔥 base de datos real (JSON)
   let productos = await getProducts();
-
-  // 🔥 si hay cambios del admin, se aplican encima
   const cache = localStorage.getItem("admin-products");
 
   if (cache) {
@@ -27,7 +23,7 @@ export async function loadAdmin() {
 
       <div class="admin-card">
 
-        <h2>📦 Productos</h2>
+        <h2> Productos</h2>
 
         <table class="admin-table">
 
@@ -69,7 +65,7 @@ export async function loadAdmin() {
     </div>
   `;
 
-  // 🔥 DELETE GLOBAL (admin seguro)
+  // DELETE 
   (window as any).deleteProduct = (id: number) => {
 
     let data = JSON.parse(localStorage.getItem("admin-products") || "[]");
